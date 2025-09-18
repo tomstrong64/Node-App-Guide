@@ -8,7 +8,7 @@ and ease of use with LLMs.
 
 ---
 
-## 📑 Sections
+## Sections
 
 - [Implementation Principles](./principles.md)  
 - [Project Folder Structure](./folder-structure.md)  
