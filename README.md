@@ -10,12 +10,11 @@ and ease of use with LLMs.
 
 ## 📑 Sections
 
-- [Docker Standards for Node.js Applications](./docker.md)  
-- [Core Node.js Standards and Practices](./nodejs.md)  
+- [Implementation Principles](./principles.md)  
 - [Project Folder Structure](./folder-structure.md)  
-- [Styling and Linting Standards (ESLint + Prettier + Airbnb Rules)](./styling.md)  
-- [Testing Standards (Vitest, Supertest, MongoDB Memory Server)](./testing.md)  
-- [Recommended NPM Packages by Category](./packages.md)  
+- [Core Node.js Standards and Practices](./nodejs.md)  
+- [Styling and Linting Standards](./styling.md)  
+- [Testing Standards](./testing.md)  
 - [HTTP Request Code Flow Standards](./http-code-flow.md)  
-- [API Documentation and Swagger Standards](./documentation.md)  
-- [Deployment and Production Considerations](./deployment.md)  
+- [Recommended NPM Packages by Category](./packages.md)  
+- [Docker Standards for Node.js Applications](./docker.md)
