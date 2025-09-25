@@ -2,7 +2,7 @@
 
 ## Principles
 - Use Docker for both dev and prod.  
-- Pin Node.js to exact LTS image (e.g. `node:22.19.0-alpine3.22`).  
+- Pin Node.js to exact LTS image (e.g. `node:22.20.0-alpine3.22`).  
 - Use Alpine images when possible.  
 - Multi-stage builds:
   - **dev** → all deps, hot reload with `--watch`.  
@@ -15,7 +15,7 @@
 ## Example Dockerfile
 
 ```dockerfile
-FROM node:22.19.0-alpine3.22 AS base
+FROM node:22.20.0-alpine3.22 AS base
 
 # ---- Development ----
 FROM base AS dev
