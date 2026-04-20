@@ -108,7 +108,6 @@ export const createUser = catchNext(async (req, res, next) => {
   const user = await userService.createUser(userData);
   res.status(201).json(user);
 });
-```
 
 // Service - handles business logic
 // src/services/userService.js
@@ -226,6 +225,7 @@ export const config = {
 ├── services/        # Business logic
 ├── utils/           # Utility/helper functions
 └── app.js           # App bootstrap
+/test/               # Tests outside of src folder
 ```
 
 ### Structure Rules
@@ -282,6 +282,12 @@ export const createUser = catchNext(async (req, res, next) => {
   const user = await userService.createUser(userData);
   res.status(201).json(user);
 });
+
+// src/routes/userRouter.js
+import * as userValidators from '../middleware/userValidation.js';
+import * as userController from '../controllers/userController.js';
+...
+router.post('/users', userValidators.validateCreateUser, userController.createUser);
 ```
 
 ### Repository Patterns
@@ -384,58 +390,41 @@ export const getUserOrder = catchNext(async (req, res) => {
 ### Request Processing Order
 **FOLLOW** this exact sequence for all API endpoints:
 
-1. **Route exists?** → No → `404 Not Found`
-2. **Route has resource?** → No → pass to validation or controller
-3. **User logged in?** → No → `401 Unauthorized`
-4. **Resource exists?** → No → `404 Not Found`
-5. **User has access to resource?** → No → `404 Not Found` (hide existence)
-6. **User has access to route?** → No → `403 Forbidden`
-7. **Request content valid?** → No → `400 Bad Request`
-8. **Otherwise** → proceed to controller
+https://mermaid.ai/d/8ce15cf6-7c83-41f3-bd5a-5f00ea36b492
 
 ### Middleware Order Example
 ```js
-// src/routes/userRoutes.js
-import { validateCreateUser, validateUpdateUser } from '../middleware/userValidation.js';
-import { authenticate, anonymous } from '../middleware/auth.js';
-import { populate, authoriseResource, authoriseRoute } from '../middleware/authorization.js';
-import { Resources, Access } from '../constants/resources.js';
-import { createUser, getUser, updateUser, deleteUser } from '../controllers/userController.js';
+// Protected resource type + instance
+// e.g. GET /posts/:postId, DELETE /posts/:postId
+app.get("/posts/:postId", authenticate, populate, authoriseResource, authoriseRoute, validate, controller);
 
-// POST /users - Create user (no auth required)
-router.post(
-  '/',
-  anonymous,
-  validateCreateUser,
-  createUser,
-);
+// Protected resource type + collection
+// e.g. POST /posts, GET /posts
+app.post("/posts", authenticate, authoriseRoute, validate, controller);
 
-// Apply shared middleware to all routes with :userId parameter
-router.use('/:userId', authenticate);
+// Unprotected resource type + instance + protected route
+// e.g. DELETE /pages/:slug (admin only)
+app.delete("/pages/:slug", populate, authenticate, authoriseRoute, validate, controller);
 
-router.use(
-  '/:userId',
-  populate(Resources.USER),
-  authoriseResource(Resources.USER),
-);
+// Unprotected resource type + instance + unprotected route
+// e.g. GET /pages/:slug (public)
+app.get("/pages/:slug", populate, validate, controller);
 
-// GET /users/:userId - Get user (auth + resource access required)
-router.get('/:userId', getUser);
+// Unprotected resource type + collection + protected route
+// e.g. POST /pages (admin only)
+app.post("/pages", authenticate, authoriseRoute, validate, controller);
 
-// PUT /users/:userId - Update user (auth + resource + route permissions required)
-router.put(
-  '/:userId',
-  authoriseRoute(Access.ADMIN),
-  validateUpdateUser,
-  updateUser,
-);
+// Unprotected resource type + collection + unprotected route
+// e.g. GET /pages (public listing)
+app.get("/pages", validate, controller);
 
-// DELETE /users/:userId - Delete user (auth + resource + route permissions required)
-router.delete(
-  '/:userId',
-  authoriseRoute(Access.ADMIN),
-  deleteUser,
-);
+// Non-resource + protected route
+// e.g. POST /admin/clear-cache
+app.post("/admin/clear-cache", authenticate, authoriseRoute, validate, controller);
+
+// Non-resource + unprotected route
+// e.g. GET /health
+app.get("/health", validate, controller);
 ```
 
 ### Status Code Rules
